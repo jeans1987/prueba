@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Consulta de Licitaciones</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #1a2530);
+            color: white;
+            padding: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-bottom: 4px solid var(--secondary-color);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        main {
+            padding: 30px 0;
+        }
+        
+        .search-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            border-left: 5px solid var(--secondary-color);
+        }
+        
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+        
+        input[type="text"] {
+            padding: 14px 18px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        button {
+            background: linear-gradient(to right, var(--secondary-color), #2980b9);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(52, 152, 219, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: none;
+            border-top: 5px solid var(--success-color);
+        }
+        
+        .result-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .result-id {
+            background-color: var(--light-color);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: var(--dark-color);
+            border: 1px solid #ddd;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: all 0.3s;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .result-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+        
+        .result-label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .result-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .alert {
+            padding: 18px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+        
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .alert-success {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--secondary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px 0;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 40px;
+        }
+        
+        .instructions {
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .instructions h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">📋</span>
+                    <span>Sistema de Licitaciones</span>
+                </div>
+                <h1>Consulta de Información de Licitaciones</h1>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <section class="search-section">
+            <h2>Buscar Licitación por ID</h2>
+            <p class="description">Ingresa el ID de la licitación para consultar su información detallada</p>
+            
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="licitacionId">ID de Licitación</label>
+                    <input type="text" id="licitacionId" placeholder="Ej: 2215-69-LQ23" required>
+                </div>
+                <button type="submit">Buscar Licitación</button>
+            </form>
+            
+            <div class="instructions">
+                <h3>Instrucciones de uso:</h3>
+                <ul>
+                    <li>Ingresa el ID exacto de la licitación que deseas consultar</li>
+                    <li>El sistema buscará en la base de datos y mostrará toda la información disponible</li>
+                    <li>Si el ID no existe, se mostrará un mensaje de error</li>
+                </ul>
+            </div>
+        </section>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Buscando información en la base de datos...</p>
+        </div>
+        
+        <div class="alert alert-danger" id="errorAlert" style="display: none;">
+            <span class="alert-icon">⚠️</span>
+            <span id="errorMessage">No se encontró ninguna licitación con el ID proporcionado. Por favor, verifica el ID e intenta nuevamente.</span>
+        </div>
+        
+        <section class="result-section" id="resultSection">
+            <div class="result-header">
+                <h2 class="result-title">Información de la Licitación</h2>
+                <div class="result-id" id="resultId">ID: 2215-69-LQ23</div>
+            </div>
+            
+            <div class="result-grid" id="resultGrid">
+                <!-- Los datos se insertarán aquí dinámicamente -->
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>Sistema de Consulta de Licitaciones &copy; 2023 - Conectado a Google Sheets</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('searchForm');
+            const licitacionIdInput = document.getElementById('licitacionId');
+            const resultSection = document.getElementById('resultSection');
+            const resultId = document.getElementById('resultId');
+            const resultGrid = document.getElementById('resultGrid');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // URL de tu Google Sheet publicado
+            const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSuf1bp3YjnAdDea8Uy0qSPuEhfUYkgdnjWrVWJD23XJAHhEcvvd_E7N4GaKUXmOdCjamMFQWxdBX_a/pubhtml?gid=195980644&single=true';
+            
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const id = licitacionIdInput.value.trim();
+                
+                if (!id) {
+                    showError('Por favor, ingresa un ID de licitación');
+                    return;
+                }
+                
+                // Mostrar indicador de carga
+                loadingIndicator.classList.add('active');
+                resultSection.classList.remove('active');
+                errorAlert.style.display = 'none';
+                
+                // Buscar en Google Sheets
+                buscarEnGoogleSheets(id);
+            });
+            
+            async function buscarEnGoogleSheets(id) {
+                try {
+                    // Usamos un proxy CORS para evitar problemas de same-origin policy
+                    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                    const response = await fetch(proxyUrl + SHEET_URL);
+                    
+                    if (!response.ok) {
+                        throw new Error('Error al conectar con Google Sheets');
+                    }
+                    
+                    const html = await response.text();
+                    
+                    // Ocultar indicador de carga
+                    loadingIndicator.classList.remove('active');
+                    
+                    // Parsear el HTML para extraer los datos
+                    const datos = parsearHTML(html);
+                    
+                    if (datos.encabezados && datos.filas) {
+                        // Buscar la fila que coincida con el ID
+                        const idIndex = datos.encabezados.findIndex(header => 
+                            header && header.toString().toLowerCase().includes('id')
+                        );
+                        
+                        if (idIndex === -1) {
+                            showError('No se pudo encontrar la columna de ID en la hoja de cálculo');
+                            return;
+                        }
+                        
+                        const filaEncontrada = datos.filas.find(fila => 
+                            fila[idIndex] && fila[idIndex].toString().trim() === id
+                        );
+                        
+                        if (filaEncontrada) {
+                            mostrarResultados(id, datos.encabezados, filaEncontrada);
+                        } else {
+                            showError(`No se encontró ninguna licitación con el ID: ${id}`);
+                        }
+                    } else {
+                        showError('No se pudieron cargar los datos de la hoja de cálculo');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    loadingIndicator.classList.remove('active');
+                    showError('Error al conectar con la base de datos. Verifica tu conexión a Internet.');
+                }
+            }
+            
+            function parsearHTML(html) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const tabla = doc.querySelector('table');
+                
+                if (!tabla) {
+                    return { encabezados: [], filas: [] };
+                }
+                
+                const filas = Array.from(tabla.querySelectorAll('tr'));
+                const encabezados = Array.from(filas[0].querySelectorAll('td, th')).map(celda => 
+                    celda.textContent.trim()
+                );
+                
+                const datosFilas = filas.slice(1).map(fila => 
+                    Array.from(fila.querySelectorAll('td')).map(celda => 
+                        celda.textContent.trim()
+                    )
+                );
+                
+                return {
+                    encabezados: encabezados,
+                    filas: datosFilas
+                };
+            }
+            
+            function mostrarResultados(id, encabezados, fila) {
+                // Actualizar el ID mostrado
+                resultId.textContent = `ID: ${id}`;
+                
+                // Limpiar resultados anteriores
+                resultGrid.innerHTML = '';
+                
+                // Mapeo de campos a mostrar (basado en tu solicitud)
+                const camposRequeridos = [
+                    'Año', 'Proveedor', 'Termino Boleta', 'Alerta Boleta', 
+                    'Termino Contrato', 'Alerta Contrato', 'Monto Adjudicado', 
+                    'Saldo Adjudicado', '%', 'Nombre Licitacion', 'Nombre de Analista'
+                ];
+                
+                // Crear elementos para cada campo requerido
+                let camposEncontrados = 0;
+                
+                camposRequeridos.forEach(campo => {
+                    const indice = encabezados.findIndex(header => 
+                        header && header.trim().toLowerCase().includes(campo.toLowerCase())
+                    );
+                    
+                    if (indice !== -1 && fila[indice] !== undefined) {
+                        const valor = fila[indice] || 'No disponible';
+                        
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        
+                        const label = document.createElement('div');
+                        label.className = 'result-label';
+                        label.textContent = campo;
+                        
+                        const value = document.createElement('div');
+                        value.className = 'result-value';
+                        value.textContent = valor;
+                        
+                        item.appendChild(label);
+                        item.appendChild(value);
+                        resultGrid.appendChild(item);
+                        camposEncontrados++;
+                    }
+                });
+                
+                // Si no se encontraron campos, mostrar mensaje
+                if (camposEncontrados === 0) {
+                    const mensaje = document.createElement('div');
+                    mensaje.className = 'alert alert-danger';
+                    mensaje.innerHTML = '<span class="alert-icon">⚠️</span> No se encontraron los campos requeridos en la hoja de cálculo.';
+                    resultGrid.appendChild(mensaje);
+                }
+                
+                // Mostrar la sección de resultados
+                resultSection.classList.add('active');
+                
+                // Desplazarse suavemente a los resultados
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function showError(mensaje) {
+                errorMessage.textContent = mensaje;
+                errorAlert.style.display = 'flex';
+                resultSection.classList.remove('active');
+            }
+            
+            // Enfocar el campo de entrada al cargar la página
+            licitacionIdInput.focus();
+        });
+    </script>
+</body>
+</html>
